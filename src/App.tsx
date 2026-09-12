@@ -8,11 +8,21 @@ import { Player } from './components/layout/Player';
 import { BottomNav } from './components/layout/BottomNav';
 import { SleepTimerMenu } from './components/layout/SleepTimerMenu';
 import { PodcastChannel } from './types';
+import { prefetchAllChannels } from './lib/api';
 
 export default function App() {
   const theme = useAppStore(state => state.theme);
   const activeTab = useAppStore(state => state.activeTab);
   const [selectedPodcast, setSelectedPodcast] = useState<PodcastChannel | null>(null);
+
+  // Background prefetch all channels on app mount to ensure offline availability and auto-updates
+  useEffect(() => {
+    // We delay the background prefetch slightly to make sure the app finishes initial render smoothly
+    const timer = setTimeout(() => {
+      prefetchAllChannels();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;

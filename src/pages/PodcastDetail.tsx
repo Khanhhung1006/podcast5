@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PodcastChannel, Episode } from '../types';
-import { fetchPodcastFeed } from '../lib/api';
+import { fetchPodcastFeed, getCachedFeed } from '../lib/api';
 import { ChevronLeft, Play, Clock, Calendar, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { useAudioStore } from '../store/audioStore';
 import { useRecentStore } from '../store/recentStore';
@@ -8,8 +8,10 @@ import { formatDate, formatDuration, parseDuration } from '../lib/utils';
 import { motion } from 'motion/react';
 
 export function PodcastDetail({ podcast, onBack }: { podcast: PodcastChannel, onBack: () => void }) {
-  const [episodes, setEpisodes] = useState<Episode[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Synchronously initialize the state from the cache (SWR Pattern)
+  const cachedData = getCachedFeed(podcast.id);
+  const [episodes, setEpisodes] = useState<Episode[]>(cachedData ? cachedData.episodes : []);
+  const [loading, setLoading] = useState(episodes.length === 0);
   const [error, setError] = useState<string | null>(null);
   
   const play = useAudioStore(state => state.play);
@@ -18,21 +20,29 @@ export function PodcastDetail({ podcast, onBack }: { podcast: PodcastChannel, on
   
   const recentEpisodes = useRecentStore(state => state.recentEpisodes);
 
-  const loadFeed = async () => {
-    setLoading(true);
+  const loadFeed = async (force = false) => {
+    // Only show full screen/list loader if we don't have any cached episodes to display
+    if (episodes.length === 0) {
+      setLoading(true);
+    }
     setError(null);
     try {
-      const data = await fetchPodcastFeed(podcast);
+      const data = await fetchPodcastFeed(podcast, force);
       setEpisodes(data.episodes);
     } catch (err: any) {
-      setError(err.message || 'Lỗi khi tải dữ liệu');
+      // If we don't have cached data, show the full error screen
+      if (episodes.length === 0) {
+        setError(err.message || 'Lỗi khi tải dữ liệu');
+      } else {
+        console.warn('Background update failed, keeping cached episodes:', err);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadFeed();
+    loadFeed(false);
   }, [podcast]);
 
   const handlePlay = (episode: Episode) => {
@@ -87,7 +97,7 @@ export function PodcastDetail({ podcast, onBack }: { podcast: PodcastChannel, on
           <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl flex items-center gap-3 border border-red-100 dark:border-red-900/30">
             <AlertCircle size={20} />
             <span className="flex-1">{error}</span>
-            <button onClick={loadFeed} className="px-3 py-1 bg-red-100 dark:bg-red-900/50 rounded-lg text-sm font-medium">Thử lại</button>
+            <button onClick={() => loadFeed(true)} className="px-3 py-1 bg-red-100 dark:bg-red-900/50 rounded-lg text-sm font-medium">Thử lại</button>
           </div>
         )}
 

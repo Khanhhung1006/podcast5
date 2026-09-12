@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useAudioStore } from '../../store/audioStore';
 import { useRecentStore } from '../../store/recentStore';
 import { useFavoritesStore } from '../../store/favoritesStore';
@@ -52,7 +52,7 @@ export function Player() {
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSeek = (e: ChangeEvent<HTMLInputElement>) => {
     const time = parseFloat(e.target.value);
     seek(time);
   };
