@@ -1,0 +1,6 @@
+{
+  "name": "Podcast Learning",
+  "description": "A fully functional podcast player optimized for iOS/Safari",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

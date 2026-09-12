@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #D9A441;
+  --color-brand-accent: #C78B1F;
+  --color-brand-border: #E6DDCC;
+  
+  --color-light-bg: #F7F4EE;
+  --color-light-surface: #FFFDF8;
+  --color-light-text: #2D2D2D;
+  --color-light-text-muted: #6B7280;
+
+  --color-dark-bg: #121212;
+  --color-dark-surface: #1E1E1E;
+  --color-dark-text: #F3F4F6;
+  --color-dark-text-muted: #9CA3AF;
+}
+
+@layer base {
+  :root {
+    --background: var(--color-light-bg);
+    --surface: var(--color-light-surface);
+    --foreground: var(--color-light-text);
+    --muted: var(--color-light-text-muted);
+    --border: var(--color-brand-border);
+    --primary: var(--color-brand-primary);
+    --accent: var(--color-brand-accent);
+  }
+
+  .dark {
+    --background: var(--color-dark-bg);
+    --surface: var(--color-dark-surface);
+    --foreground: var(--color-dark-text);
+    --muted: var(--color-dark-text-muted);
+    --border: #374151;
+    --primary: var(--color-brand-primary);
+    --accent: var(--color-brand-accent);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply transition-colors duration-300 antialiased;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.glass {
+  @apply bg-white/70 dark:bg-black/70 backdrop-blur-md border border-white/20 dark:border-white/10;
+}
